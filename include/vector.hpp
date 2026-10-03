@@ -1,12 +1,11 @@
 #pragma once
 
-#include "../allocator/allocator.hpp"
+#include "../include/misc.hpp"
 #include <stdexcept>
 #include <utility>
-#include "../misc/misc.hpp"
 #include <cstddef>
 #include <initializer_list>
-#include "../utility/utility.hpp"
+#include "../include/utility.hpp"
 
 
 
@@ -34,8 +33,7 @@ namespace mstd
         }
 
         vector(std::initializer_list<T> list)
-        : v_data(nullptr), alloc(), v_size(0
-        ), v_capacity(list.size() * 2)
+        : v_data(nullptr), alloc(), v_size(0), v_capacity(list.size() * 2)
         {
             v_data = alloc.allocate(v_capacity);
             for(auto it = list.begin(); it != list.end(); ++it, ++v_size)
@@ -122,31 +120,23 @@ namespace mstd
 
         T* begin()
         {
-            if(empty())
-            {
-                return end();
-            }
-            return &v_data[0];
+            return v_data;
         }
 
 
         const T* begin() const
         {
-            if(empty())
-            {
-                return end();
-            }
-            return &v_data[0];
+            return v_data;
         }
 
         T* end()
         {
-            return &v_data[v_size];
+            return v_data + v_size;
         }
 
         const T* end() const
         {
-            return &v_data[v_size];
+            v_data + v_size;
         }
 
 
@@ -199,50 +189,53 @@ namespace mstd
         {
 
             size_t index = pos - v_data;
-
             if(index > v_size)
             {
                 return nullptr;
             }
 
-            int oldCap = v_capacity;
-
-            if(v_size == v_capacity)
+            if(v_capacity == v_size)
             {
-                
+                size_t oldCapacity = v_capacity;
                 if(v_capacity == 0)
                 {
                     v_capacity = 1;
-                } else
-                {
+                } else {
                     v_capacity *= 2;
                 }
+
                 T* newData = alloc.allocate(v_capacity);
-                mstd::misc::copy_array(newData, v_data, alloc, index);
+                mstd::misc::move_array(newData, v_data, alloc, index);
                 alloc.construct(newData + index, value);
                 for(size_t i = index; i < v_size; i++)
                 {
                     alloc.construct(newData + i + 1, mstd::move(v_data[i]));
                 }
 
-
                 mstd::misc::clear_array(v_data, alloc, v_size);
-                alloc.deallocate(v_data, oldCap);
+                alloc.deallocate(v_data, oldCapacity);
 
-                    
                 v_data = newData;
-
-            } else
-            {
-                for(size_t i = v_size; i >= index; i--)
+                
+            } else {
+                if(v_size == 0)
                 {
-                    alloc.construct(v_data + i, mstd::move(v_data[i - 1]));
-                }
-                alloc.construct(v_data + index, value);
+                    alloc.construct(v_data, value);
+                } else {
+                    alloc.construct(v_data + v_size, mstd::move(v_data[v_size - 1]));
+                    for(size_t i = v_size - 1; i > index; i--)
+                    {   
+                        v_data[i] = mstd::move(v_data[i - 1]);
+                    }
+                    alloc.destroy(v_data + index);
+                    alloc.construct(v_data + index, value);
+                    }
             }
 
             v_size++;
             return v_data + index;
+
+            
         }
 
         void erase(const size_t pos)

@@ -1,8 +1,8 @@
 #pragma once
-#include "../allocator/allocator.hpp"
+#include "../include/allocator.hpp"
 #include <stdexcept>
-#include "../misc/misc.hpp"
-#include "../utility/utility.hpp"
+#include "../include/misc.hpp"
+#include "../include/utility.hpp"
 #include <initializer_list>
 #include <cstddef>
 #include <iostream>
@@ -44,7 +44,7 @@ namespace mstd
 
         }
 
-        string(string& str)
+        string(const string& str)
         {
             v_length = str.v_length;
             v_capacity = str.v_capacity;
@@ -272,7 +272,7 @@ namespace mstd
 
         char* insert(const size_t pos, char ch )
         {
-            bool v = true;
+
             if(v_length == v_capacity)
             {
                 size_t oldCap = v_capacity;
@@ -285,11 +285,11 @@ namespace mstd
                 }
 
                 char* newBuffer = alloc.allocate(v_capacity);
-                mstd::misc::move_array(newBuffer, buffer, alloc, pos);
+                mstd::misc::copy_array(newBuffer, buffer, alloc, pos);
                 alloc.construct(newBuffer + pos, ch);
                 for(size_t i = pos; i < v_length; i++)
                 {
-                    alloc.construct(newBuffer + i + 1, mstd::move(buffer[i]));
+                    alloc.construct(newBuffer + i + 1, buffer[i]);
                 }
 
 
@@ -299,23 +299,29 @@ namespace mstd
                 mstd::misc::clear_array(buffer, alloc, v_length);
                 alloc.deallocate(buffer, oldCap);
                 buffer = newBuffer;
-                v = false;
-            }
 
-            if(v)
-            {
-                for(size_t i = v_length; i > pos; i--)
+            } else {
                 {
-                    buffer[i] = mstd::move(buffer[i - 1]);
+                    if(v_length == 0)
+                    {
+                        alloc.construct(buffer, ch);
+                    } else {
+                        alloc.construct(buffer + v_length, buffer[v_length - 1]);
+                        for(size_t i = v_length - 1; i > pos; i--)
+                        {
+                            buffer[i] = buffer[i - 1];
+                        }
+                        alloc.construct(buffer + pos, ch);
+                        alloc.construct(buffer + v_length + 1, '\0');
+                    }
+                    
                 }
-                alloc.construct(buffer + pos, ch);
-                alloc.construct(buffer + v_length + 1, '\0');
             }
             
 
             v_length++;
 
-            return &buffer[pos];
+            return buffer + pos;
         }
 
         string erase(size_t pos)
@@ -385,7 +391,7 @@ namespace mstd
         }
 
 
-        bool starts_with(char ch) const
+        bool starts_with(const char ch) const
         {
             if(buffer[0] == ch)
             {
@@ -394,7 +400,7 @@ namespace mstd
             return false;
         }
 
-        bool ends_with(char ch) const
+        bool ends_with(const char ch) const
         {
             if(buffer[v_length - 1] == ch)
             {

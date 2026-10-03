@@ -305,14 +305,15 @@ namespace mstd
                     if(v_length == 0)
                     {
                         alloc.construct(buffer, ch);
+                        alloc.construct(buffer + 1, '\0');
                     } else {
                         alloc.construct(buffer + v_length, buffer[v_length - 1]);
-                        for(size_t i = v_length - 1; i > pos; i--)
+                        for(size_t i = v_length; i > pos; i--)
                         {
                             buffer[i] = buffer[i - 1];
                         }
-                        alloc.construct(buffer + pos, ch);
-                        alloc.construct(buffer + v_length + 1, '\0');
+                        
+                        buffer[pos] = ch;
                     }
                     
                 }

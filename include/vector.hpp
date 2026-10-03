@@ -227,9 +227,8 @@ namespace mstd
                     {   
                         v_data[i] = mstd::move(v_data[i - 1]);
                     }
-                    alloc.destroy(v_data + index);
-                    alloc.construct(v_data + index, value);
-                    }
+                    v_data[index] = value;
+                }
             }
 
             v_size++;

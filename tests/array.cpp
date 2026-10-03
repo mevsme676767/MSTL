@@ -1,6 +1,6 @@
-#include "../include/array/array.hpp"
+#include "../include/array.hpp"
 #include <iostream>
-#include "../include/string/string.hpp"
+#include "../include/string.hpp"
 
 
 //add const tests

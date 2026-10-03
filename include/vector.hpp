@@ -136,7 +136,7 @@ namespace mstd
 
         const T* end() const
         {
-            v_data + v_size;
+            return v_data + v_size;
         }
 
 

@@ -72,7 +72,7 @@ namespace mstd
         }
 
 
-        string& operator=(string& str)
+        string& operator=(const string& str)
         {
             clear();
             alloc.deallocate(buffer, v_capacity);

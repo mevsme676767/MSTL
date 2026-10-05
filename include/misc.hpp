@@ -1,6 +1,7 @@
 #pragma once
-#include <utility>
+#include "../include/utility.hpp"
 #include "../include/allocator.hpp"
+
 
 //made to avoid copypasting
 
@@ -20,7 +21,7 @@ namespace mstd::misc
     {
         for (size_t i = 0; i < range; i++)
         {
-            al.construct(data + i, std::move(src[i]));
+            al.construct(data + i, mstd::move(src[i]));
         }
     }
 

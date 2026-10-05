@@ -1,6 +1,8 @@
 #include "../include/vector.hpp"
 #include "../include/string.hpp"
 #include <iostream>
+#include <vector>
+#include <string>
 
 
 
@@ -47,12 +49,49 @@ int main()
         std::cout << x << " ";
     }
 
+    std::cout << "\n\n\n\n" << zeroins.capacity() << "\n\n";
+    
+    zeroins.reserve(20);
+    std::cout << zeroins.capacity() << " " << zeroins.size();
+
+    for(size_t i = 0; i < 15; ++i)
+    {
+        zeroins.push_back("h");
+    }
+    std::cout << "\n\n" << zeroins.capacity() << " " << zeroins.size();
+    zeroins.push_back("L");
+
+    std::cout << "\n\n" << zeroins.capacity() << " " << zeroins.size();
+    
+
+
 
     std::cout << "\n\n\n\n";
 
 
+    for(mstd::string x : zeroins)
+    {
+        std::cout << x << " ";
+    }
+
+    zeroins.resize(10);
+    std::cout << "\n\n";
+
+    for(mstd::string x : zeroins)
+    {
+        std::cout << x << " ";
+    }
+    std::cout << "\n" << zeroins.size() << "\n\n";
 
 
+    zeroins.resize(10, "h");
+
+    
+    for(mstd::string x : zeroins)
+    {
+        std::cout << x << " ";
+    }
+    std::cout << "\n" << zeroins.size();
 
 
 

@@ -2,12 +2,12 @@
 
 #include "../include/misc.hpp"
 #include <stdexcept>
-#include <utility>
 #include <cstddef>
 #include <initializer_list>
 #include "../include/utility.hpp"
 
 
+//fix erase
 
 
 namespace mstd
@@ -157,7 +157,7 @@ namespace mstd
                 }
                 T* newData = alloc.allocate(v_capacity);
 
-                mstd::misc::copy_array(newData, v_data, alloc, v_size);
+                mstd::misc::move_array(newData, v_data, alloc, v_size);
                 alloc.construct(newData + v_size, value);
                 v = false;
 
@@ -239,11 +239,11 @@ namespace mstd
 
         void erase(const size_t pos)
         {
-            alloc.destroy(v_data + pos);
             for(size_t i = pos; i < v_size - 1; i++)
             {
-                v_data[i] = std::move(v_data[i + 1]);
+                v_data[i] = mstd::move(v_data[i + 1]);
             }
+            alloc.destroy(v_data + v_size - 1);
 
 
             v_size--;
@@ -329,6 +329,55 @@ namespace mstd
             mstd::misc::clear_array(v_data, alloc, v_size);
 
             v_size = 0;
+        }
+
+        void reserve(size_t new_cap)
+        {
+            if(new_cap <= v_capacity)
+            {
+                return;
+            }
+            T* newBuffer = alloc.allocate(new_cap);
+            mstd::misc::move_array(newBuffer, v_data, alloc, v_size);
+            mstd::misc::clear_array(v_data, alloc, v_size);
+            alloc.deallocate(v_data, v_capacity);
+            v_data = newBuffer;
+            v_capacity = new_cap;
+        }
+
+        void resize(size_t count)
+        {
+            if(count == v_size)
+            {
+                return;
+            }
+            if(v_size > count)
+            {
+                size_t toRemove = v_size - count;
+                for(size_t i = 0; i < toRemove; ++i)
+                {
+                    pop_back();
+                }
+                return;
+            }
+            if(v_size < count)
+            {
+                
+                return;
+            }
+
+        }
+
+        void resize(size_t count, const T& value)
+        {
+            if(count <= 0)
+            {
+                return;
+            }
+            for(size_t i = 0; i < count; ++i)
+            {
+                push_back(value);
+            }
         }
 
     };

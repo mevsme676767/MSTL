@@ -8,8 +8,7 @@
 #include <iostream>
 
 
-
-
+//resize reverse cstr
 
 namespace mstd
 {
@@ -34,6 +33,10 @@ namespace mstd
                 v_length++;
             }
             v_capacity = v_length * 2;
+            if(v_capacity == 0)
+            {
+                v_capacity += 1;
+            }
 
             buffer = alloc.allocate(v_capacity);
             for(int i = 0; i < v_length; i++)
@@ -307,7 +310,7 @@ namespace mstd
                         alloc.construct(buffer, ch);
                         alloc.construct(buffer + 1, '\0');
                     } else {
-                        alloc.construct(buffer + v_length, buffer[v_length - 1]);
+                        alloc.construct(buffer + v_length + 1, buffer[v_length ]);
                         for(size_t i = v_length; i > pos; i--)
                         {
                             buffer[i] = buffer[i - 1];
@@ -327,14 +330,10 @@ namespace mstd
 
         string erase(size_t pos)
         {
-            alloc.destroy(buffer + pos);
             for(size_t i = pos; i < v_length; i++)
             {
                 buffer[i] = mstd::move(buffer[i + 1]);
             }
-
-            
-
             v_length--;
             return *this;
         }
@@ -374,7 +373,7 @@ namespace mstd
                     return i;
                 }
             }
-            return -1;
+            return 0;
         }
 
 
@@ -382,11 +381,12 @@ namespace mstd
         string substr(size_t pos, size_t len)
         {
             string str = "";
-
-            for(size_t i = pos; i < len + pos; i++)
+            
+            for(size_t i = pos; i < pos + len; i++)
             {
                 str.push_back(buffer[i]);
             }
+           
 
             return str;
         }
@@ -427,7 +427,7 @@ namespace mstd
         {
 
 
-            for(size_t i = 0; i <= v_length; i++)
+            for(size_t i = 0; i < v_length; i++)
             {
                 if(buffer[i] != str.buffer[0])
                 {
@@ -435,7 +435,7 @@ namespace mstd
                 }
 
                 bool found = true;
-                for(size_t j = 0; j < v_length; j++)
+                for(size_t j = 0; j < str.v_length; j++)
                 {
                     if(buffer[i + j] != str.buffer[j])
                     {
@@ -456,9 +456,6 @@ namespace mstd
 
         string append(size_t count, char ch)
         {
-
-
-
             for(size_t i = 0; i < count; i++)
             {
                 push_back(ch);
@@ -487,7 +484,7 @@ namespace mstd
         friend std::ostream& operator<<(std::ostream& os, const string& p);
     };
 
-    std::ostream& operator<<(std::ostream& os, const string& p)
+    inline std::ostream& operator<<(std::ostream& os, const string& p)
     {
     
         os << static_cast<const char*>(p.buffer); 

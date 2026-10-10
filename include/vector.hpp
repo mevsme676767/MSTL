@@ -7,7 +7,6 @@
 #include "../include/utility.hpp"
 
 
-//fix erase
 
 
 namespace mstd
@@ -20,8 +19,11 @@ namespace mstd
         T* v_data;
         size_t v_size;
         size_t v_capacity;
-
+        using Iterator = T*;
     public:
+
+
+        
         vector()
         : v_data(nullptr), alloc(), v_size(0), v_capacity(0)
         {}
@@ -118,23 +120,23 @@ namespace mstd
         }
 
 
-        T* begin()
+        Iterator begin()
         {
             return v_data;
         }
 
 
-        const T* begin() const
+        const Iterator begin() const
         {
             return v_data;
         }
 
-        T* end()
+        Iterator end()
         {
             return v_data + v_size;
         }
 
-        const T* end() const
+        const Iterator end() const
         {
             return v_data + v_size;
         }
@@ -185,7 +187,7 @@ namespace mstd
         }
 
         
-        T* insert(const T* pos, const T& value)
+        Iterator insert(const Iterator pos, const T& value)
         {
 
             size_t index = pos - v_data;
@@ -245,8 +247,23 @@ namespace mstd
             }
             alloc.destroy(v_data + v_size - 1);
 
-
+            
             v_size--;
+        }
+
+        
+        Iterator erase(Iterator pos)
+        {
+
+            size_t index = pos - begin();
+
+            for(size_t i = index; i < v_size - 1; i++)
+            {
+                v_data[i] = mstd::move(v_data[i + 1]);
+            }
+            alloc.destroy(v_data + v_size - 1);
+            v_size--;
+            return begin() + index;
         }
 
 
@@ -295,12 +312,12 @@ namespace mstd
 
         T* data()
         {
-            return &front();
+            return v_data;
         }
 
         const T* data() const
         {
-            return &front();
+            return v_data;
         }
 
 
@@ -374,10 +391,16 @@ namespace mstd
             {
                 return;
             }
-            for(size_t i = 0; i < count; ++i)
+
+            
+            
+            
+            for(size_t i = v_size; i < count; ++i)
             {
                 push_back(value);
             }
+
+            
         }
 
     };
